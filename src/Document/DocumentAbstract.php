@@ -75,6 +75,10 @@ abstract class DocumentAbstract implements DocumentInterface
             $filename = DIRECTORY_DATA.DIRECTORY_SEPARATOR.'optimized-'.time().'-'.basename($this->getSource());
 
             // Write XML.
+            $doc = $this->document->xml();
+            // Remove blank lines.
+            $doc = preg_replace("/(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+/", "\n", $doc);
+            $this->save($doc);
             $this->document->writeXML($filename);
             // Update source.
             $this->setSource($filename);
