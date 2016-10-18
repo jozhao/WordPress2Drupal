@@ -74,6 +74,8 @@ abstract class DocumentAbstract implements DocumentInterface
 
             // Write XML.
             $this->document->writeXML($filename);
+            // Update source.
+            $this->setSource($filename);
         } catch (\Exception $exception) {
             $this->addError('Cannot save optimized XML file content');
         }

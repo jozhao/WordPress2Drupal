@@ -16,6 +16,7 @@ use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Wordpress2Drupal\Document\Document;
+use Wordpress2Drupal\Document\File;
 
 /**
  * Class OptimizCommand.
@@ -74,31 +75,25 @@ class OptimizCommand extends Command
             throw new \InvalidArgumentException('File does NOT exist!');
         }
 
-        // Start the document.
-        $document = new Document($file_path);
+        // Bootstrap file.
+        $file = new File($file_path);
 
-        // Build up file object.
-        $file = new \stdClass();
-        $file->filename = basename($file_path);
-        $file->uri = $file_path;
-        $file->filemime = mime_content_type($file_path);
-        $file->filesize = @filesize($file_path);
-
-        $table = new Table($output);
-        $table
-            ->setHeaders(array('File name', 'Mime type', 'File size', 'File path'))
-            ->setRows(
+        $io->table(
+            array('File name', 'Mime type', 'File size', 'File path'),
+            array(
                 array(
-                    array(
-                        $file->filename,
-                        $file->filemime,
-                        number_format($file->filesize / 1048576, 2).' MB',
-                        $file->uri,
-                    ),
-                )
-            );
-        $table->render();
+                    $file->getFilename(),
+                    $file->getFilemime(),
+                    number_format($file->getSize() / 1048576, 2).' MB',
+                    $file->getFilepath(),
+                ),
+            )
+        );
+
         $io->newLine();
+
+        // Start the document.
+        $document = new Document($file->getFilepath());
 
         // Section - parse XML.
         $this->parse($document, $io);
@@ -118,6 +113,22 @@ class OptimizCommand extends Command
             $io->error($errors);
         } else {
             $io->success('All done! cheers');
+            // Display new file information.
+            if ($save == 1) {
+                $file = new File($document->getSource());
+
+                $io->table(
+                    array('File name', 'Mime type', 'File size', 'File path'),
+                    array(
+                        array(
+                            $file->getFilename(),
+                            $file->getFilemime(),
+                            number_format($file->getSize() / 1048576, 2).' MB',
+                            $file->getFilepath(),
+                        ),
+                    )
+                );
+            }
         }
 
         $io->newLine();
@@ -133,7 +144,7 @@ class OptimizCommand extends Command
         $io->section('Clean up XML file');
         $qp = $document->load();
         try {
-            $items = $qp->find('item');
+            $items = $qp->top('item');
             $sizeOfItems = $items->count();
             $io->text('Found '.$sizeOfItems.' item(s)');
             if ($sizeOfItems > 0) {
@@ -144,7 +155,7 @@ class OptimizCommand extends Command
                     foreach ($wp_postmeta as $meta) {
                         $wp_meta_key = $meta->xpath('wp:meta_key[contains(text(),\'_fss_relevance\')]');
                         // Remove the meta.
-                        if (!empty($wp_meta_key)) {
+                        if (!empty($wp_meta_key->text())) {
                             $meta->remove();
                         }
                     }
