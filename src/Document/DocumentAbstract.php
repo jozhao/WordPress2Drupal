@@ -10,7 +10,9 @@ abstract class DocumentAbstract implements DocumentInterface
 {
     protected $source;
     protected $document;
-    protected $options = [];
+    protected $options = [
+        'format_output' => 1,
+    ];
     protected $errors = [];
 
     /**
@@ -110,7 +112,7 @@ abstract class DocumentAbstract implements DocumentInterface
      */
     public function setQp($source)
     {
-        $qp = qp($source);
+        $qp = qp($source, null, $this->getOptions());
         $this->document = $qp;
     }
 
