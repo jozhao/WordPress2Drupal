@@ -2,6 +2,18 @@
   "name": "pandastix/wordpress2drupal",
   "description": "Wordpress to Drupal content migration",
   "type": "project",
+  "keywords": [
+    "Wordpress",
+    "Drupal",
+    "migrate"
+  ],
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Joseph Zhao",
+      "email": "joseph.zhao@xing.net.au"
+    }
+  ],
   "require": {
     "querypath/querypath": "^3.0",
     "symfony/console": "^3.1"
@@ -21,12 +33,6 @@
       "Wordpress2Drupal\\": "src/"
     }
   },
-  "authors": [
-    {
-      "name": "Joseph Zhao",
-      "email": "joseph.zhao@xing.net.au"
-    }
-  ],
   "minimum-stability": "dev",
   "prefer-stable": true,
   "config": {
