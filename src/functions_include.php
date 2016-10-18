@@ -1,7 +1,9 @@
 <?php
 
 /**
- * @file Common functions.
+ * @file Include functions.
  */
 
-namespace Wordpress2Drupal;
+if (!function_exists('Wordpress2Drupal\version')) {
+    require __DIR__.'/functions.php';
+}

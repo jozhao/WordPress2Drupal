@@ -15,6 +15,7 @@ use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Wordpress2Drupal\Document\Document;
 
 /**
  * Class OptimizCommand.
@@ -46,7 +47,8 @@ class OptimizCommand extends Command
                             'save',
                             's',
                             InputOption::VALUE_OPTIONAL,
-                            'Save the Wordpress exported XML file in a custom path for further usage'
+                            'Save the Wordpress exported XML file in a custom path for further usage',
+                            '1'
                         ),
                     )
                 )
@@ -72,6 +74,9 @@ class OptimizCommand extends Command
             throw new \InvalidArgumentException('File does NOT exist!');
         }
 
+        // Start the document.
+        $document = new Document($file_path);
+
         // Build up file object.
         $file = new \stdClass();
         $file->filename = basename($file_path);
@@ -96,43 +101,72 @@ class OptimizCommand extends Command
         $io->newLine();
 
         // Section - parse XML.
-        $io->section('Clean up XML file');
-        try {
-            $qp = qp($file->uri);
-            print $qp->count();
+        $this->parse($document, $io);
 
-        } catch (\Exception $exception) {
-            $io->error('Cannot read XML file content');
+        // Save the optimized file or display.
+        $save = $input->getOption('save');
+        if ($save == 1) {
+            $this->save($document, $io);
+        } else {
+            $qp = $document->load();
+            $qp->writeXML();
         }
 
+        // Display the error or success message.
+        $errors = $document->getErrors();
+        if ($errors) {
+            $io->error($errors);
+        } else {
+            $io->success('All done! cheers');
+        }
+
+        $io->newLine();
+    }
+
+    /**
+     * Pare the Document.
+     * @param Document $document
+     * @param $io
+     */
+    protected function parse(Document $document, $io)
+    {
+        $io->section('Clean up XML file');
+        $qp = $document->load();
+        try {
+            $items = $qp->find('item');
+            $sizeOfItems = $items->count();
+            $io->text('Found '.$sizeOfItems.' item(s)');
+            if ($sizeOfItems > 0) {
+                $io->progressStart($sizeOfItems);
+                foreach ($items as $item) {
+                    $io->note('Processing item: '.$item->find('title')->text());
+                    $wp_postmeta = $item->xpath('wp:postmeta');
+                    foreach ($wp_postmeta as $meta) {
+                        $wp_meta_key = $meta->xpath('wp:meta_key[contains(text(),\'_fss_relevance\')]');
+                        // Remove the meta.
+                        if (!empty($wp_meta_key)) {
+                            $meta->remove();
+                        }
+                    }
+                    // Process one step.
+                    $io->progressAdvance(1);
+                }
+                $io->progressFinish();
+            }
+        } catch (\Exception $exception) {
+            $document->addError('Cannot parse XML file content');
+        }
+        $io->text('Done');
+    }
+
+    /**
+     * Save the file.
+     */
+    protected function save(Document $document, $io)
+    {
         // Section - parse XML.
         $io->section('Save the new XML file');
-        try {
-            $vendorDir = dirname(dirname(__FILE__));
-            $baseDir = dirname($vendorDir);
-            $current_folder = $baseDir.DIRECTORY_SEPARATOR;
-            $directory = rtrim($current_folder.'data', '/\\');
-
-            // Create directory if not exist.
-            if (!is_dir($directory)) {
-                mkdir($directory, 0755, true);
-            }
-
-            // Set directory permission.
-            if (!is_writable($directory)) {
-                chmod($directory, 0755);
-            } else {
-                $filename = $directory.DIRECTORY_SEPARATOR.'optimized-'.time().'-'.$file->filename;
-            }
-
-            // Write XML.
-            $qp->writeXML($filename);
-        } catch (\Exception $exception) {
-            $io->error('Cannot save optimized XML file content');
-        }
-
-
-        $io->success('All done! cheers');
-        $io->newLine();
+        $document->saveFile();
+        $io->text('Done');
     }
 }
