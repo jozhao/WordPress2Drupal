@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @file Analysis Wordpress.
+ * @file Analysis WordPress.
  */
 
 namespace WordPress2Drupal\Command;
@@ -15,6 +15,8 @@ use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use WordPress2Drupal\Document\Document;
+use WordPress2Drupal\Document\File;
 
 /**
  * Class Analysis
@@ -40,13 +42,7 @@ class AnalysisCommand extends Command
                             'file',
                             'f',
                             InputOption::VALUE_REQUIRED,
-                            'File path of the exported Wordpress XML file'
-                        ),
-                        new InputOption(
-                            'save',
-                            's',
-                            InputOption::VALUE_OPTIONAL,
-                            'Save the XML file for further usage'
+                            'File path of the exported WordPress XML file'
                         ),
                     )
                 )
@@ -62,7 +58,7 @@ class AnalysisCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
 
-        $io->title('Analysis the exported Wordpress XML');
+        $io->title('Analysis the exported WordPress XML');
 
         // Section - fetch XML information.
         $io->section('Fetch XML file information');
@@ -72,30 +68,25 @@ class AnalysisCommand extends Command
             throw new \InvalidArgumentException('File does NOT exist!');
         }
 
-        // Build up file object.
-        $file = new \stdClass();
-        $file->filename = basename($file_path);
-        $file->uri = $file_path;
-        $file->filemime = mime_content_type($file_path);
-        $file->filesize = @filesize($file_path);
+        // Bootstrap file.
+        $file = new File($file_path);
 
-        $table = new Table($output);
-        $table
-            ->setHeaders(array('File name', 'Mime type', 'File size', 'File path'))
-            ->setRows(
+        $io->table(
+            array('File name', 'Mime type', 'File size', 'File path'),
+            array(
                 array(
-                    array(
-                        $file->filename,
-                        $file->filemime,
-                        number_format($file->filesize / 1048576, 2).' MB',
-                        $file->uri,
-                    ),
-                )
-            );
-        $table->render();
+                    $file->getFilename(),
+                    $file->getFilemime(),
+                    number_format($file->getSize() / 1048576, 2).' MB',
+                    $file->getFilepath(),
+                ),
+            )
+        );
+
+        $io->newLine();
 
         // Send a warning if the file size is big.
-        if ($file->filesize >= 10737418) {
+        if ($file->getSize() >= 104857600) {
             $io->warning('The XML file size is over 100MB which will effect the running of migration process');
         }
 

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @file Optimiz exported Wordpress XML.
+ * @file Optimiz exported WordPress XML.
  */
 
 namespace WordPress2Drupal\Command;
@@ -31,8 +31,8 @@ class OptimizCommand extends Command
     {
         $this
             ->setName('WordPress2Drupal:optimize')
-            ->setDescription('Optimize the exported Wordpress XML file')
-            ->setHelp('This command helps you to optimize the exported Wordpress XML file');
+            ->setDescription('Optimize the exported WordPress XML file')
+            ->setHelp('This command helps you to optimize the exported WordPress XML file');
 
         $this
             ->setDefinition(
@@ -42,13 +42,13 @@ class OptimizCommand extends Command
                             'file',
                             'f',
                             InputOption::VALUE_REQUIRED,
-                            'File path of the exported Wordpress XML file'
+                            'File path of the exported WordPress XML file'
                         ),
                         new InputOption(
                             'save',
                             's',
                             InputOption::VALUE_OPTIONAL,
-                            'Save the Wordpress exported XML file in a custom path for further usage',
+                            'Save the WordPress exported XML file in a custom path for further usage',
                             '1'
                         ),
                     )
@@ -65,7 +65,7 @@ class OptimizCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
 
-        $io->title('Optimize the exported Wordpress XML');
+        $io->title('Optimize the exported WordPress XML');
 
         // Section - fetch XML information.
         $io->section('Fetch XML file information');
