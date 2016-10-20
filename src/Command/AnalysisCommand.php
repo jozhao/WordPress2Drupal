@@ -170,6 +170,7 @@ class AnalysisCommand extends Command
                         $user->xpath('wp:author_id')->text(),
                     );
                 }
+                asort($userArray);
                 $io->table(
                     array('Username', 'User email', 'Full name', 'User ID in WordPress'),
                     $userArray
@@ -181,15 +182,66 @@ class AnalysisCommand extends Command
             // Section - parse XML.
             $io->section('Fetch WordPress site categories information');
 
+            if ($sizeOfCategories > 0) {
+                $categoryArray = [];
+                foreach ($categories as $category) {
+                    $categoryArray[] = array(
+                        $category->xpath('wp:cat_name')->text(),
+                        $category->xpath('wp:category_nicename')->text(),
+                        $category->xpath('wp:category_parent')->text(),
+                        $category->xpath('wp:term_id')->text(),
+                    );
+                }
+                asort($categoryArray);
+                $io->table(
+                    array('Category', 'Slug', 'Parent', 'Internal ID in WordPress'),
+                    $categoryArray
+                );
+            }
+
             $io->newLine();
 
             // Section - parse XML.
             $io->section('Fetch WordPress site tags information');
 
+            if ($sizeOfTags > 0) {
+                $tagArray = [];
+                foreach ($tags as $tag) {
+                    $tagArray[] = array(
+                        $tag->xpath('wp:tag_name')->text(),
+                        $tag->xpath('wp:tag_slug')->text(),
+                        $tag->xpath('wp:term_id')->text(),
+                    );
+                }
+                asort($tagArray);
+                $io->table(
+                    array('Tag', 'Slug', 'Internal ID in WordPress'),
+                    $tagArray
+                );
+            }
+
             $io->newLine();
 
             // Section - parse XML.
             $io->section('Fetch WordPress site terms information');
+
+            if ($sizeOfTerms > 0) {
+                $termArray = [];
+                foreach ($terms as $term) {
+                    $termArray[] = array(
+                        $term->xpath('wp:term_taxonomy')->text(),
+                        $term->xpath('wp:term_name')->text(),
+                        $term->xpath('wp:term_slug')->text(),
+                        $term->xpath('wp:term_parent')->text(),
+                        $tag->xpath('wp:term_id')->text(),
+                    );
+                }
+                asort($termArray);
+                $io->table(
+                    array('Taxonomy', 'Term', 'Slug', 'Parent', 'Internal ID in WordPress'),
+                    $termArray
+                );
+            }
 
             $io->newLine();
         } catch (\Exception $exception) {
