@@ -87,7 +87,7 @@ class AnalysisCommand extends Command
 
         // Send a warning if the file size is big.
         if ($file->getSize() >= 104857600) {
-            $io->warning('The XML file size is over 100MB which will effect the running of migration process');
+            $io->warning('The XML file size is over 100MB which will effect the running of migration');
         }
 
         // Section - parse XML.
