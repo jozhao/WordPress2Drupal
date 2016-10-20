@@ -77,7 +77,7 @@ abstract class DocumentAbstract implements DocumentInterface
             // Write XML.
             $doc = $this->document->xml();
             // Remove blank lines.
-            $doc = preg_replace("/(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+/", "\n", $doc);
+            $doc = preg_replace("/(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+/", "\r\n", $doc);
             $this->save($doc);
             $this->document->writeXML($filename);
             // Update source.
