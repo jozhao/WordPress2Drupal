@@ -1,2 +1,2 @@
-# Wordpress2Drupal
-Wordpress to Drupal content migration
+# WordPress2Drupal
+WordPress to Drupal content migration

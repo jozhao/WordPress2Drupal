@@ -4,11 +4,11 @@
  * @file File.php
  */
 
-namespace Wordpress2Drupal\Document;
+namespace WordPress2Drupal\Document;
 
 /**
  * Class File
- * @package Wordpress2Drupal\Document
+ * @package WordPress2Drupal\Document
  */
 class File
 {

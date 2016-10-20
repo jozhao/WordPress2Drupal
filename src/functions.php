@@ -4,7 +4,7 @@
  * @file Common functions.
  */
 
-namespace Wordpress2Drupal;
+namespace WordPress2Drupal;
 
 define('DIRECTORY_DATA', dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR.'data');
 

@@ -4,7 +4,7 @@
  * @file Optimiz exported Wordpress XML.
  */
 
-namespace Wordpress2Drupal\Command;
+namespace WordPress2Drupal\Command;
 
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -15,12 +15,12 @@ use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Wordpress2Drupal\Document\Document;
-use Wordpress2Drupal\Document\File;
+use WordPress2Drupal\Document\Document;
+use WordPress2Drupal\Document\File;
 
 /**
  * Class OptimizCommand.
- * @package Wordpress2Drupal\Command
+ * @package WordPress2Drupal\Command
  */
 class OptimizCommand extends Command
 {
@@ -30,7 +30,7 @@ class OptimizCommand extends Command
     protected function configure()
     {
         $this
-            ->setName('wordpress2drupal:optimize')
+            ->setName('WordPress2Drupal:optimize')
             ->setDescription('Optimize the exported Wordpress XML file')
             ->setHelp('This command helps you to optimize the exported Wordpress XML file');
 

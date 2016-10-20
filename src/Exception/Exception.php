@@ -4,11 +4,11 @@
  * @file Exception.php
  */
 
-namespace Wordpress2Drupal\Exception;
+namespace WordPress2Drupal\Exception;
 
 /**
  * Interface Exception
- * @package Wordpress2Drupal\Exception
+ * @package WordPress2Drupal\Exception
  */
 interface Exception
 {

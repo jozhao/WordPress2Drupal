@@ -4,6 +4,6 @@
  * @file Include functions.
  */
 
-if (!function_exists('Wordpress2Drupal\version')) {
+if (!function_exists('WordPress2Drupal\version')) {
     require __DIR__.'/functions.php';
 }

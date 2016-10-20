@@ -4,11 +4,11 @@
  * @file RuntimeException.php
  */
 
-namespace Wordpress2Drupal\Exception;
+namespace WordPress2Drupal\Exception;
 
 /**
  * Class RuntimeException
- * @package Wordpress2Drupal\Exception
+ * @package WordPress2Drupal\Exception
  */
 class RuntimeException extends \RuntimeException implements Exception
 {

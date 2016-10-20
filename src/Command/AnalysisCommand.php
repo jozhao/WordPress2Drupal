@@ -4,7 +4,7 @@
  * @file Analysis Wordpress.
  */
 
-namespace Wordpress2Drupal\Command;
+namespace WordPress2Drupal\Command;
 
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -18,7 +18,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * Class Analysis
- * @package Wordpress2Drupal\Console.
+ * @package WordPress2Drupal\Console.
  */
 class AnalysisCommand extends Command
 {
@@ -28,9 +28,9 @@ class AnalysisCommand extends Command
     protected function configure()
     {
         $this
-            ->setName('wordpress2drupal:analysis')
-            ->setDescription('Analysis the exported Wordpress XML file')
-            ->setHelp('This command helps you to analysis the exported Wordpress XML file');
+            ->setName('WordPress2Drupal:analysis')
+            ->setDescription('Analysis the exported WordPress XML file')
+            ->setHelp('This command helps you to analysis the exported WordPress XML file');
 
         $this
             ->setDefinition(

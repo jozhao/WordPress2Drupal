@@ -4,11 +4,11 @@
  * @file DocumentInterface.php
  */
 
-namespace Wordpress2Drupal\Document;
+namespace WordPress2Drupal\Document;
 
 /**
  * Interface DocumentInterface
- * @package Wordpress2Drupal\Document
+ * @package WordPress2Drupal\Document
  */
 interface DocumentInterface
 {

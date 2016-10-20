@@ -1,9 +1,9 @@
 {
-  "name": "pandastix/wordpress2drupal",
-  "description": "Wordpress to Drupal content migration",
+  "name": "pandastix/WordPress2Drupal",
+  "description": "WordPress to Drupal content migration",
   "type": "project",
   "keywords": [
-    "Wordpress",
+    "WordPress",
     "Drupal",
     "migrate"
   ],
@@ -30,7 +30,7 @@
       "src/functions_include.php"
     ],
     "psr-4": {
-      "Wordpress2Drupal\\": "src/"
+      "WordPress2Drupal\\": "src/"
     }
   },
   "minimum-stability": "dev",

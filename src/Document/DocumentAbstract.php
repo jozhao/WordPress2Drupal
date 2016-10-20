@@ -4,7 +4,7 @@
  * @file DocumentAbstract.php
  */
 
-namespace Wordpress2Drupal\Document;
+namespace WordPress2Drupal\Document;
 
 abstract class DocumentAbstract implements DocumentInterface
 {
