@@ -90,7 +90,110 @@ class AnalysisCommand extends Command
             $io->warning('The XML file size is over 100MB which will effect the running of migration');
         }
 
+        // Start the document.
+        $document = new Document($file->getFilepath());
+
         // Section - parse XML.
-        $io->section('Prepare new XML file for migration');
+        $this->parse($document, $io);
+
+        // Display the error or success message.
+        $errors = $document->getErrors();
+        if ($errors) {
+            $io->error($errors);
+        } else {
+            $io->success('All done! cheers');
+        }
+
+        $io->newLine();
+    }
+
+    /**
+     * Parse XML file.
+     * @param Document $document
+     * @param $io
+     */
+    protected function parse(Document $document, $io)
+    {
+        // Load document into memory.
+        $qp = $document->load();
+        try {
+            $siteTitle = $qp->xpath('/rss/channel/title')->text();
+            // Fetch users.
+            $users = $qp->xpath('/rss/channel/wp:author');
+            $sizeOfUsers = $users->count();
+            // Fetch categories.
+            $categories = $qp->xpath('/rss/channel/wp:category');
+            $sizeOfCategories = $categories->count();
+            // Fetch tags.
+            $tags = $qp->xpath('/rss/channel/wp:tag');
+            $sizeOfTags = $tags->count();
+            // Fetch terms.
+            $terms = $qp->xpath('/rss/channel/wp:term');
+            $sizeOfTerms = $terms->count();
+            // Fetch items.
+            $items = $qp->top('item');
+            $sizeOfItems = $items->count();
+            // Fetch attachments.
+            $attachments = $qp->xpath('/rss/channel/item/wp:attachment_url');
+            $sizeOfAttachments = $attachments->count();
+
+            // Section - parse XML.
+            $io->section('Fetch WordPress site information');
+
+            $io->table(
+                array('Site name', 'Users', 'Categories', 'Tags', 'Terms', 'Items', 'Attachments'),
+                array(
+                    array(
+                        $siteTitle,
+                        $sizeOfUsers,
+                        $sizeOfCategories,
+                        $sizeOfTags,
+                        $sizeOfTerms,
+                        $sizeOfItems,
+                        $sizeOfAttachments,
+                    ),
+                )
+            );
+
+            $io->newLine();
+
+            // Section - parse XML.
+            $io->section('Fetch WordPress site users information');
+
+            if ($sizeOfUsers > 0) {
+                $userArray = [];
+                foreach ($users as $user) {
+                    $userArray[] = array(
+                        $user->xpath('wp:author_login')->text(),
+                        $user->xpath('wp:author_email')->text(),
+                        $user->xpath('wp:author_display_name')->text(),
+                        $user->xpath('wp:author_id')->text(),
+                    );
+                }
+                $io->table(
+                    array('Username', 'User email', 'Full name', 'User ID in WordPress'),
+                    $userArray
+                );
+            }
+
+            $io->newLine();
+
+            // Section - parse XML.
+            $io->section('Fetch WordPress site categories information');
+
+            $io->newLine();
+
+            // Section - parse XML.
+            $io->section('Fetch WordPress site tags information');
+
+            $io->newLine();
+
+            // Section - parse XML.
+            $io->section('Fetch WordPress site terms information');
+
+            $io->newLine();
+        } catch (\Exception $exception) {
+            $document->addError('Cannot parse XML file content');
+        }
     }
 }
