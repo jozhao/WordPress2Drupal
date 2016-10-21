@@ -131,7 +131,23 @@ class AnalysisCommand extends Command
             $customBundles = $item->xpath('wp:post_type');
             if ($customBundles->count() > 0) {
                 foreach ($customBundles as $customBundle) {
-                    $document->addBundle($customBundle->text());
+                    $bundle = [];
+                    $bundle['name'] = $customBundle->text();
+                    $bundle['extras'] = [];
+
+                    // Find taxonomy.
+                    $taxonomy = [];
+                    $categories = $item->xpath('category/@domain');
+                    if ($categories->count() > 0) {
+                        foreach ($categories as $category) {
+                            $taxonomy[] = $category->text();
+                        }
+                        if (!empty($taxonomy)) {
+                            $bundle['extras']['taxonomy'] = $taxonomy;
+                        }
+                    }
+
+                    $document->addBundle($bundle['name'], $bundle['extras']);
                 }
             }
             $io->progressAdvance(1);
@@ -310,7 +326,7 @@ class AnalysisCommand extends Command
             $io->section('Migration report - post types (bundles)');
             $bundles = $document->bundles();
             $io->table(
-                array('Post type (bundle)', 'Total'),
+                array('Post type (bundle)', 'Total', 'Taxonomy fields'),
                 $bundles
             );
         } catch (\Exception $exception) {

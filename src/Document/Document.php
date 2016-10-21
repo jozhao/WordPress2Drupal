@@ -118,12 +118,18 @@ class Document extends DocumentAbstract
     /**
      * @param $bundle
      */
-    public function addBundle($bundle)
+    public function addBundle($bundle, $extras = [])
     {
         if (!isset($this->bundles[$bundle])) {
             $this->bundles[$bundle] = [];
         }
         $this->bundles[$bundle]['slug'] = $bundle;
         $this->bundles[$bundle]['total'] += 1;
+
+        if (isset($extras['taxonomy'])) {
+            $this->bundles[$bundle]['taxonomy'] = implode(',', $extras['taxonomy']);
+        } else {
+            $this->bundles[$bundle]['taxonomy'] = '';
+        }
     }
 }
