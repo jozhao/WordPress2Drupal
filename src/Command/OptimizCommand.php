@@ -150,7 +150,7 @@ class OptimizCommand extends Command
             if ($sizeOfItems > 0) {
                 $io->progressStart($sizeOfItems);
                 foreach ($items as $item) {
-                    $io->note('Processing item: '.$item->find('title')->text());
+                    //$io->note('Processing item: '.$item->find('title')->text());
                     $wp_postmeta = $item->xpath('wp:postmeta');
                     foreach ($wp_postmeta as $meta) {
                         $wp_meta_key = $meta->xpath('wp:meta_key[contains(text(),\'_fss_relevance\')]');

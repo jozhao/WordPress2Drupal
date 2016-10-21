@@ -15,6 +15,7 @@ use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Console\Helper\ProgressBar;
 use WordPress2Drupal\Document\Document;
 use WordPress2Drupal\Document\File;
 
@@ -83,15 +84,17 @@ class AnalysisCommand extends Command
             )
         );
 
-        $io->newLine();
-
         // Send a warning if the file size is big.
         if ($file->getSize() >= 104857600) {
             $io->warning('The XML file size is over 100MB which will effect the running of migration');
         }
 
+        $io->caution('It may take a while to analysis the document');
         // Start the document.
         $document = new Document($file->getFilepath());
+
+        // Fetch site information.
+        $this->info($document, $io, $output);
 
         // Section - parse XML.
         $this->parse($document, $io);
@@ -108,16 +111,66 @@ class AnalysisCommand extends Command
     }
 
     /**
+     * Fetch site information
+     * @param Document $document
+     * @param $io
+     */
+    protected function info(Document $document, $io, $output)
+    {
+        $io->section('Fetch Site information');
+
+        $items = $document->items();
+        $sizeOfItems = $items->count();
+
+        $io->text('Fetch items information...');
+        $io->newLine();
+        $io->progressStart($sizeOfItems);
+
+        // Process items information.
+        foreach ($items as $item) {
+            $customBundles = $item->xpath('wp:post_type');
+            if ($customBundles->count() > 0) {
+                foreach ($customBundles as $customBundle) {
+                    $document->addBundle($customBundle->text());
+                }
+            }
+            $io->progressAdvance(1);
+        }
+
+        // ensure that the progress bar is at 100%
+        $io->progressFinish();
+    }
+
+    /**
      * Parse XML file.
      * @param Document $document
      * @param $io
      */
     protected function parse(Document $document, $io)
     {
-        // Load document into memory.
-        $qp = $document->load();
         try {
-            $siteTitle = $qp->xpath('/rss/channel/title')->text();
+            $io->section('Migration report - summary');
+            $site = $document->site();
+            $io->table(
+                array('Site name', 'Link', 'Language', 'pubDate', 'Description'),
+                array(
+                    array(
+                        $site['title'],
+                        $site['link'],
+                        $site['language'],
+                        $site['pubDate'],
+                        $site['description'],
+                    ),
+                )
+            );
+        } catch (\Exception $exception) {
+            $document->addError('Cannot parse XML file content');
+        }
+
+        try {
+            $io->section('Migration report - basic information from WordPress XML');
+            // Load document into memory.
+            $qp = $document->load();
             // Fetch users.
             $users = $qp->xpath('/rss/channel/wp:author');
             $sizeOfUsers = $users->count();
@@ -131,34 +184,38 @@ class AnalysisCommand extends Command
             $terms = $qp->xpath('/rss/channel/wp:term');
             $sizeOfTerms = $terms->count();
             // Fetch items.
-            $items = $qp->top('item');
+            $items = $document->items();
             $sizeOfItems = $items->count();
             // Fetch attachments.
             $attachments = $qp->xpath('/rss/channel/item/wp:attachment_url');
             $sizeOfAttachments = $attachments->count();
-
-            // Section - parse XML.
-            $io->section('Fetch WordPress site information');
+            // Fetch post types.
+            $bundles = $document->bundles();
+            $sizeOfBundles = count($bundles);
 
             $io->table(
-                array('Site name', 'Users', 'Categories', 'Tags', 'Terms', 'Items', 'Attachments'),
+                array('Users', 'Categories', 'Tags', 'Terms', 'Items', 'Attachments', 'Post types(bundles)'),
                 array(
                     array(
-                        $siteTitle,
                         $sizeOfUsers,
                         $sizeOfCategories,
                         $sizeOfTags,
                         $sizeOfTerms,
                         $sizeOfItems,
                         $sizeOfAttachments,
+                        $sizeOfBundles,
                     ),
                 )
             );
+        } catch (\Exception $exception) {
+            $document->addError('Cannot parse XML file content');
+        }
 
-            $io->newLine();
-
+        // Load document into memory.
+        $qp = $document->load();
+        try {
             // Section - parse XML.
-            $io->section('Fetch WordPress site users information');
+            $io->section('Migration report - site users');
 
             if ($sizeOfUsers > 0) {
                 $userArray = [];
@@ -180,7 +237,7 @@ class AnalysisCommand extends Command
             $io->newLine();
 
             // Section - parse XML.
-            $io->section('Fetch WordPress site categories information');
+            $io->section('Migration report - site categories');
 
             if ($sizeOfCategories > 0) {
                 $categoryArray = [];
@@ -202,7 +259,7 @@ class AnalysisCommand extends Command
             $io->newLine();
 
             // Section - parse XML.
-            $io->section('Fetch WordPress site tags information');
+            $io->section('Migration report - site tags');
 
             if ($sizeOfTags > 0) {
                 $tagArray = [];
@@ -223,7 +280,7 @@ class AnalysisCommand extends Command
             $io->newLine();
 
             // Section - parse XML.
-            $io->section('Fetch WordPress site terms information');
+            $io->section('Migration report - site terms');
 
             if ($sizeOfTerms > 0) {
                 $termArray = [];
@@ -244,6 +301,18 @@ class AnalysisCommand extends Command
             }
 
             $io->newLine();
+        } catch (\Exception $exception) {
+            $document->addError('Cannot parse XML file content');
+        }
+
+        // List custom post types.
+        try {
+            $io->section('Migration report - post types (bundles)');
+            $bundles = $document->bundles();
+            $io->table(
+                array('Post type (bundle)', 'Total'),
+                $bundles
+            );
         } catch (\Exception $exception) {
             $document->addError('Cannot parse XML file content');
         }
