@@ -127,9 +127,12 @@ class Document extends DocumentAbstract
         $this->bundles[$bundle]['total'] += 1;
 
         if (isset($extras['taxonomy'])) {
-            $this->bundles[$bundle]['taxonomy'] = implode(',', $extras['taxonomy']);
-        } else {
-            $this->bundles[$bundle]['taxonomy'] = '';
+            $taxonomy = [];
+            if (!empty($this->bundles[$bundle]['taxonomy'])) {
+                $taxonomy = explode(',', $this->bundles[$bundle]['taxonomy']);
+            }
+            $taxonomy += $extras['taxonomy'];
+            $this->bundles[$bundle]['taxonomy'] = implode(',', array_unique($taxonomy));
         }
     }
 }
