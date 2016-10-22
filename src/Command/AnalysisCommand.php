@@ -147,6 +147,40 @@ class AnalysisCommand extends Command
                         }
                     }
 
+                    // Find fields.
+                    $fields = [];
+                    $postMetas = $item->xpath('wp:postmeta/wp:meta_key');
+                    if ($postMetas->count() > 0) {
+                        foreach ($postMetas as $postMeta) {
+                            $field = $postMeta->text();
+
+                            if (strpos($field, '_edit_last') !== false) {
+                                continue;
+                            }
+
+                            if (strpos($field, '_wp_page_template') !== false) {
+                                continue;
+                            }
+
+                            if (strpos($field, '_wp_old_slug') !== false) {
+                                continue;
+                            }
+
+                            if (strpos($field, '_oembed') !== false) {
+                                continue;
+                            }
+
+                            if (strpos($field, '_fss_relevance') !== false) {
+                                continue;
+                            }
+
+                            $fields[] = $field;
+                        }
+                        if (!empty($fields)) {
+                            $bundle['extras']['fields'] = $fields;
+                        }
+                    }
+
                     $document->addBundle($bundle['name'], $bundle['extras']);
                 }
             }
@@ -210,18 +244,30 @@ class AnalysisCommand extends Command
             $sizeOfBundles = count($bundles);
 
             $io->table(
-                array('Users', 'Categories', 'Tags', 'Terms', 'Items', 'Attachments', 'Post types(bundles)'),
+                array('Users', 'Items', 'Attachments', 'Post types(bundles)', 'Categories', 'Tags', 'Terms'),
                 array(
                     array(
                         $sizeOfUsers,
-                        $sizeOfCategories,
-                        $sizeOfTags,
-                        $sizeOfTerms,
                         $sizeOfItems,
                         $sizeOfAttachments,
                         $sizeOfBundles,
+                        $sizeOfCategories,
+                        $sizeOfTags,
+                        $sizeOfTerms,
                     ),
                 )
+            );
+        } catch (\Exception $exception) {
+            $document->addError('Cannot parse XML file content');
+        }
+
+        // List custom post types.
+        try {
+            $io->section('Migration report - post types (bundles)');
+            $bundles = $document->bundles();
+            $io->table(
+                array('Post type (bundle)', 'Total', 'Taxonomy fields', 'Other fields'),
+                $bundles
             );
         } catch (\Exception $exception) {
             $document->addError('Cannot parse XML file content');
@@ -253,7 +299,7 @@ class AnalysisCommand extends Command
             $io->newLine();
 
             // Section - parse XML.
-            $io->section('Migration report - site categories');
+            $io->section('Migration report - post categories');
 
             if ($sizeOfCategories > 0) {
                 $categoryArray = [];
@@ -275,7 +321,7 @@ class AnalysisCommand extends Command
             $io->newLine();
 
             // Section - parse XML.
-            $io->section('Migration report - site tags');
+            $io->section('Migration report - post tags');
 
             if ($sizeOfTags > 0) {
                 $tagArray = [];
@@ -317,18 +363,6 @@ class AnalysisCommand extends Command
             }
 
             $io->newLine();
-        } catch (\Exception $exception) {
-            $document->addError('Cannot parse XML file content');
-        }
-
-        // List custom post types.
-        try {
-            $io->section('Migration report - post types (bundles)');
-            $bundles = $document->bundles();
-            $io->table(
-                array('Post type (bundle)', 'Total', 'Taxonomy fields'),
-                $bundles
-            );
         } catch (\Exception $exception) {
             $document->addError('Cannot parse XML file content');
         }

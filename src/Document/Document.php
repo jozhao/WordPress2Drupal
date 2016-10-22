@@ -17,10 +17,30 @@ class Document extends DocumentAbstract
     protected $items;
 
     protected $bundles = [
-        'post' => [],
-        'page' => [],
-        'attachment' => [],
-        'nav_menu_item' => [],
+        'post' => [
+            'slug' => 'post',
+            'total' => 0,
+            'taxonomy' => '',
+            'fields' => '',
+        ],
+        'page' => [
+            'slug' => 'page',
+            'total' => 0,
+            'taxonomy' => '',
+            'fields' => '',
+        ],
+        'attachment' => [
+            'slug' => 'attachment',
+            'total' => 0,
+            'taxonomy' => '',
+            'fields' => '',
+        ],
+        'nav_menu_item' => [
+            'slug' => 'nav_menu_item',
+            'total' => 0,
+            'taxonomy' => '',
+            'fields' => '',
+        ],
     ];
 
     /**
@@ -121,11 +141,17 @@ class Document extends DocumentAbstract
     public function addBundle($bundle, $extras = [])
     {
         if (!isset($this->bundles[$bundle])) {
-            $this->bundles[$bundle] = [];
+            $this->bundles[$bundle] = [
+                'slug' => $bundle,
+                'total' => 0,
+                'taxonomy' => '',
+                'fields' => '',
+            ];
         }
         $this->bundles[$bundle]['slug'] = $bundle;
         $this->bundles[$bundle]['total'] += 1;
 
+        // Taxonomy.
         if (isset($extras['taxonomy'])) {
             $taxonomy = [];
             if (!empty($this->bundles[$bundle]['taxonomy'])) {
@@ -133,6 +159,16 @@ class Document extends DocumentAbstract
             }
             $taxonomy += $extras['taxonomy'];
             $this->bundles[$bundle]['taxonomy'] = implode(',', array_unique($taxonomy));
+        }
+
+        // Other fields.
+        if (isset($extras['fields'])) {
+            $fields = [];
+            if (!empty($this->bundles[$bundle]['fields'])) {
+                $fields = explode(',', $this->bundles[$bundle]['fields']);
+            }
+            $fields += $extras['fields'];
+            $this->bundles[$bundle]['fields'] = implode(',', array_unique($fields));
         }
     }
 }
