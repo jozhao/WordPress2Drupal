@@ -18,6 +18,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Console\Helper\ProgressBar;
 use WordPress2Drupal\Document\Document;
 use WordPress2Drupal\Document\File;
+use WordPress2Drupal\Parser\ParserFactory;
 
 /**
  * Class Analysis
@@ -366,5 +367,8 @@ class AnalysisCommand extends Command
         } catch (\Exception $exception) {
             $document->addError('Cannot parse XML file content');
         }
+
+        //Parse the document.
+        $parser = ParserFactory::load('WordPress2Drupal\Parser\Parser');
     }
 }
