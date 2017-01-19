@@ -353,7 +353,7 @@ class AnalysisCommand extends Command
                         $term->xpath('wp:term_name')->text(),
                         $term->xpath('wp:term_slug')->text(),
                         $term->xpath('wp:term_parent')->text(),
-                        $tag->xpath('wp:term_id')->text(),
+                        $term->xpath('wp:term_id')->text(),
                     );
                 }
                 asort($termArray);
@@ -369,6 +369,6 @@ class AnalysisCommand extends Command
         }
 
         //Parse the document.
-        $parser = ParserFactory::load('WordPress2Drupal\Parser\Parser');
+        //$parser = ParserFactory::load('WordPress2Drupal\Parser\Parser');
     }
 }
